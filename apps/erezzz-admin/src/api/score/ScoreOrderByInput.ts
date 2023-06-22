@@ -1,0 +1,38 @@
+import { SortOrder } from "../../util/SortOrder";
+
+export type ScoreOrderByInput = {
+  scoreDate?: SortOrder;
+  id?: SortOrder;
+  lastname?: SortOrder;
+  firstname?: SortOrder;
+  h1?: SortOrder;
+  h2?: SortOrder;
+  h3?: SortOrder;
+  h4?: SortOrder;
+  h5?: SortOrder;
+  h6?: SortOrder;
+  h7?: SortOrder;
+  h8?: SortOrder;
+  h9?: SortOrder;
+  front?: SortOrder;
+  fhndcp?: SortOrder;
+  fnet?: SortOrder;
+  ninePlayed?: SortOrder;
+  press?: SortOrder;
+  h10?: SortOrder;
+  h11?: SortOrder;
+  h12?: SortOrder;
+  h13?: SortOrder;
+  h14?: SortOrder;
+  h15?: SortOrder;
+  h16?: SortOrder;
+  h17?: SortOrder;
+  h18?: SortOrder;
+  back?: SortOrder;
+  bhndcp?: SortOrder;
+  bnet?: SortOrder;
+  createdAt?: SortOrder;
+  updatedAt?: SortOrder;
+  membersId?: SortOrder;
+  scheduleId?: SortOrder;
+};
