@@ -1,0 +1,36 @@
+import { MemberWhereUniqueInput } from "../member/MemberWhereUniqueInput";
+import { ScheduleWhereUniqueInput } from "../schedule/ScheduleWhereUniqueInput";
+
+export type ScoreUpdateInput = {
+  scoreDate?: Date | null;
+  lastname?: string;
+  firstname?: string;
+  h1?: number;
+  h2?: number;
+  h3?: number;
+  h4?: number;
+  h5?: number;
+  h6?: number;
+  h7?: number;
+  h8?: number;
+  h9?: number;
+  front?: number;
+  fhndcp?: number;
+  fnet?: number;
+  ninePlayed?: string;
+  press?: boolean;
+  h10?: number;
+  h11?: number;
+  h12?: number;
+  h13?: number;
+  h14?: number;
+  h15?: number;
+  h16?: number;
+  h17?: number;
+  h18?: number;
+  back?: number;
+  bhndcp?: number;
+  bnet?: number;
+  members?: MemberWhereUniqueInput;
+  schedule?: ScheduleWhereUniqueInput;
+};

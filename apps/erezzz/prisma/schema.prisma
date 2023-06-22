@@ -1,0 +1,366 @@
+datasource postgres {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  firstName String?
+  lastName  String?
+  username  String   @unique
+  password  String
+  roles     Json
+}
+
+model Club {
+  createdAt DateTime? @DateTime(0)
+  updatedAt DateTime? @DateTime(0)
+  id        Int?      @id @default(autoincrement())
+  name      String    @VarChar(100)
+  course    Course[]
+
+  @@map("club")
+}
+
+model Course {
+  id            Int?            @id @default(autoincrement())
+  courseName    String          @map(course_name) @VarChar(255)
+  createdAt     DateTime?       @DateTime(0)
+  updatedAt     DateTime?       @DateTime(0)
+  club          Club            @relation(fields: [clubId], references: [id])
+  clubId        Int
+  courseRating  CourseRating[]
+  courseTeetype CourseTeetype[]
+  seasonCourse  SeasonCourse[]
+  tee           Tee[]
+
+  @@index([club_id], map: "club_id")
+  @@map("course")
+}
+
+model CourseRating {
+  id           Int?      @id @default(autoincrement())
+  tee          String    @VarChar(50)
+  courseSlope  Float     @Float
+  courseRating Float     @Float
+  coursePar    Int
+  frontSlope   Float     @Float
+  frontRating  Float     @Float
+  frontPar     Int
+  backSlope    Float     @Float
+  backRating   Float     @Float
+  backPar      Int
+  createdAt    DateTime? @DateTime(0)
+  updatedAt    DateTime? @DateTime(0)
+  course       Course    @relation(fields: [courseId], references: [id])
+  courseId     Int
+
+  @@index([courseId], map: "courseId")
+  @@map("course_rating")
+}
+
+model CourseTeetype {
+  id        Int?                     @id @default(autoincrement())
+  teeId     Int                      @default(0)
+  teeType   EnumCourseTeetypeTeeType
+  createdAt DateTime?                @DateTime(0)
+  updatedAt DateTime?                @DateTime(0)
+  course    Course                   @relation(fields: [courseId], references: [id])
+  courseId  Int
+
+  @@index([courseId, teeType], map: "Index 2")
+  @@map("course_teetype")
+}
+
+model EmailLog {
+  id          Int?     @id @default(autoincrement()) @map(log_id) @UnsignedInt
+  speakerName String   @map(speaker_name) @VarChar(80)
+  title       String   @Text
+  subject     String   @VarChar(100)
+  recipient   String   @VarChar(100)
+  status      String   @VarChar(10)
+  date        DateTime @DateTime(0)
+
+  @@map("email_logs")
+}
+
+model Handicap {
+  id       Int?     @id @default(autoincrement())
+  playerId Int      @map(player_id)
+  handicap Int      @default(0)
+  index    Float
+  updated  DateTime @default(now()) @DateTime(0)
+
+  @@index([player_id], map: "player_id")
+  @@map("handicap")
+}
+
+model HandicapHistory {
+  createdDate DateTime @map(created_date) @DateTime(0)
+  id          Int?     @id @default(autoincrement())
+  playerName  String   @map(player_name) @VarChar(255)
+  ghinNumber  String   @map(ghin_number) @VarChar(50)
+  gindex      Float
+  createdAt   DateTime @DateTime(0)
+  updatedAt   DateTime @DateTime(0)
+
+  @@index([player_name], map: "player_id")
+  @@map("handicap_history")
+}
+
+model Hole {
+  id         Int?      @id @default(autoincrement())
+  holeNumber Int       @default(0) @map(hole_number)
+  par        Int       @default(0)
+  handicap   Int       @default(0)
+  length     Int       @default(0)
+  createdAt  DateTime? @DateTime(0)
+  updatedAt  DateTime? @DateTime(0)
+  tee        Tee       @relation(fields: [teeId], references: [id])
+  teeId      Int
+
+  @@index([tee_id], map: "tee_id")
+  @@map("hole")
+}
+
+model Matchscore {
+  id           Int?      @id @default(autoincrement())
+  teamId       Int?
+  playerPoints Float     @Float
+  createdAt    DateTime? @default(now()) @DateTime(0)
+  updatedAt    DateTime? @default(now()) @DateTime(0)
+  members      Member?   @relation(fields: [membersId], references: [id])
+  membersId    Int?
+  schedule     Schedule? @relation(fields: [scheduleId], references: [id])
+  scheduleId   Int?
+
+  @@index([playerId], map: "FK_matchscore_members")
+  @@index([matchId], map: "FK_matchscore_schedule")
+  @@map("matchscore")
+}
+
+model Member {
+  matchscore Matchscore[]
+  scores     Score[]
+  team       Team[]
+  id         Int?          @id @default(autoincrement())
+  lname      String?       @VarChar(255)
+  fname      String?       @VarChar(255)
+  email      String?       @default("") @VarChar(80)
+  active     String        @Char(1)
+  tee        EnumMemberTee
+  ghin       String        @VarChar(50)
+  createdAt  DateTime?     @DateTime(0)
+  updatedAt  DateTime?     @DateTime(0)
+
+  @@map("members")
+}
+
+model Randomplayer {
+  RandomplayerId Int    @map(id)
+  lname          String @VarChar(100)
+  fname          String @VarChar(100)
+
+  @@map("randomplayers")
+}
+
+model Schedule {
+  matchscore Matchscore[]
+  id         Int?         @id @default(autoincrement()) @map(scheduleId)
+  dateOfPlay DateTime?    @Date
+  idTeam1    Int?
+  idPlayer1  Int?
+  idTeam2    Int?
+  idPlayer2  Int?
+  createdAt  DateTime?    @default(now()) @DateTime(0)
+  updatedAt  DateTime     @DateTime(0)
+  scores     Score[]
+
+  @@index([season], map: "season")
+  @@map("schedule")
+}
+
+model Score {
+  scoreDate  DateTime? @map(score_date) @Date
+  id         Int?      @id @default(autoincrement())
+  lastname   String    @Char(255)
+  firstname  String    @Char(255)
+  h1         Int       @TinyInt
+  h2         Int       @TinyInt
+  h3         Int       @TinyInt
+  h4         Int       @TinyInt
+  h5         Int       @TinyInt
+  h6         Int       @TinyInt
+  h7         Int       @TinyInt
+  h8         Int       @TinyInt
+  h9         Int       @TinyInt
+  front      Int       @TinyInt
+  fhndcp     Int       @TinyInt
+  fnet       Int       @TinyInt
+  ninePlayed String    @Char(5)
+  press      Boolean   @default(false)
+  h10        Int       @TinyInt
+  h11        Int       @TinyInt
+  h12        Int       @TinyInt
+  h13        Int       @TinyInt
+  h14        Int       @TinyInt
+  h15        Int       @TinyInt
+  h16        Int       @TinyInt
+  h17        Int       @TinyInt
+  h18        Int       @TinyInt
+  back       Int       @TinyInt
+  bhndcp     Int       @TinyInt
+  bnet       Int       @TinyInt
+  createdAt  DateTime? @default(now()) @DateTime(0)
+  updatedAt  DateTime? @default(now()) @DateTime(0)
+  members    Member    @relation(fields: [membersId], references: [id])
+  membersId  Int
+  schedule   Schedule  @relation(fields: [scheduleId], references: [id])
+  scheduleId Int
+
+  @@index([player_id], map: "FK_scores_members")
+  @@index([match_id], map: "FK_scores_schedule")
+  @@map("scores")
+}
+
+model Season {
+  updatedAt       DateTime?      @default(now()) @DateTime(0)
+  seasonCourse    SeasonCourse[]
+  team            Team[]
+  id              Int?           @id @default(autoincrement())
+  name            String?        @unique @unique(map: "name") @VarChar(100)
+  startDate       DateTime       @map(start_date) @Date
+  endDate         DateTime       @map(end_date) @Date
+  midseasonDate   DateTime       @map(midseason_date) @Date
+  numTeams        Int            @map(num_teams) @TinyInt
+  playersPerTeam  Int            @map(players_per_team) @TinyInt
+  scheduleCreated Int            @map(schedule_created) @TinyInt
+  createdAt       DateTime?      @default(now()) @DateTime(0)
+
+  @@map("season")
+}
+
+model SeasonCourse {
+  id        Int?      @id @default(autoincrement())
+  createdAt DateTime? @DateTime(0)
+  updatedAt DateTime? @DateTime(0)
+  course    Course    @relation(fields: [courseId], references: [id])
+  courseId  Int
+  season    Season    @relation(fields: [seasonId], references: [id])
+  seasonId  Int
+
+  @@index([course_id], map: "FK_season_course_course")
+  @@index([season_id], map: "FK_season_course_season")
+  @@map("season_course")
+}
+
+model Team {
+  id         Int?        @id @default(autoincrement())
+  teamId     Int?        @map(team_id)
+  playerRank Int?        @map(player_rank)
+  sub        Int
+  createdAt  DateTime?   @default(now()) @DateTime(0)
+  updatedAt  DateTime    @DateTime(0)
+  members    Member?     @relation(fields: [membersId], references: [id])
+  membersId  Int?
+  season     Season?     @relation(fields: [seasonId], references: [id])
+  seasonId   Int?
+  teamscore  Teamscore[]
+
+  @@index([player_id], map: "FK_team_members")
+  @@index([season_id], map: "FK_team_season")
+  @@map("team")
+}
+
+model TeamCopy {
+  id         String?   @id @default(cuid()) @default("") @VarChar(50)
+  seasonId   Int?      @map(season_id)
+  teamId     Int?      @map(team_id)
+  playerId   Int?      @map(player_id)
+  playerRank Int?      @map(player_rank)
+  sub        Int
+  createdAt  DateTime? @default(now()) @DateTime(0)
+  updatedAt  DateTime  @DateTime(0)
+
+  @@map("team_copy")
+}
+
+model Teamscore {
+  id         Int?      @id @default(autoincrement())
+  teamIid    Int
+  dateOfPlay DateTime  @Date
+  points     Float     @Float
+  createdAt  DateTime? @default(now()) @DateTime(0)
+  updatedAt  DateTime? @default(now()) @DateTime(0)
+  team       Team?     @relation(fields: [teamId], references: [id])
+  teamId     Int?
+
+  @@index([teamkey], map: "FK_teamscore_team")
+  @@map("teamscore")
+}
+
+model TeamscoreCopy {
+  updatedAt  DateTime? @default(now()) @DateTime(0)
+  id         Int?      @id @default(autoincrement())
+  teamkey    Int?
+  teamIid    Int
+  dateOfPlay DateTime  @Date
+  points     Float     @Float
+  createdAt  DateTime? @default(now()) @DateTime(0)
+
+  @@map("teamscore_copy")
+}
+
+model Tee {
+  bslope    Float
+  createdAt DateTime?     @DateTime(0)
+  updatedAt DateTime?     @DateTime(0)
+  course    Course?       @relation(fields: [courseId], references: [id])
+  courseId  Int?
+  hole      Hole[]
+  id        Int?          @id @default(autoincrement())
+  name      String?       @VarChar(255)
+  gender    EnumTeeGender
+  par       Int
+  rating    Float
+  slope     Float
+  frating   Float
+  fslope    Float
+  brating   Float
+
+  @@index([course_id], map: "course_id")
+  @@map("tee")
+}
+
+model Testschedule {
+  id     Int? @id @default(autoincrement())
+  week   Int?
+  teamId Int?
+  p1Id   Int?
+  p2Id   Int?
+
+  @@map("testschedule")
+}
+
+enum EnumCourseTeetypeTeeType {
+  MEN
+  SENIOR
+  LADIES
+}
+
+enum EnumMemberTee {
+  MEN
+  SENIOR
+  LADIES
+}
+
+enum EnumTeeGender {
+  M
+  F
+}
